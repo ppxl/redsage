@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/pkg/errors"
-	"github.com/ppxl/sagemine/cmd"
 	"github.com/ppxl/sagemine/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -62,10 +61,43 @@ func main() {
 	app.Name = "redsage"
 	app.Usage = "Maintain sanity while combining Redmine activity times and Sage project times"
 	app.Version = Version
-	app.Commands = []*cli.Command{cmd.Run()}
+	app.Commands = []*cli.Command{run()}
 
 	app.Flags = createGlobalFlags()
 	app.Before = configureApplication
 	err := app.Run(os.Args)
 	checkMainError(err)
+}
+
+const (
+	flagLunchBreakInMinutesLong  = "break"
+	flagLunchBreakInMinutesShort = "b"
+	flagSinglePipelinesLong      = "single"
+	flagSinglePipelinesShort     = "s"
+)
+
+func run() *cli.Command {
+	return &cli.Command{
+		Name:   "run",
+		Usage:  "read Redmine work time data and convert them to Sage-compatible data",
+		Action: doRun,
+		Flags: []cli.Flag{
+			&cli.IntFlag{
+				Name:    flagLunchBreakInMinutesLong,
+				Aliases: []string{flagLunchBreakInMinutesShort},
+				Usage:   "lunch break time in minutes",
+				Value:   60,
+			},
+			&cli.StringSliceFlag{
+				Name:    flagSinglePipelinesLong,
+				Aliases: []string{flagSinglePipelinesShort},
+				Usage:   "these pipelines will receive their own pipeline and will not be joint into a single pseudo-pipeline",
+			},
+		},
+	}
+}
+
+func doRun(*cli.Context) error {
+
+	return nil
 }

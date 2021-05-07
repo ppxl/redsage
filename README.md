@@ -14,7 +14,10 @@ The output times are totally off in favor of easier data input in Sage, that is:
 ./redsage redmine.csv
 
 # tell RedSage to have a lunch break of 45 minutes 
-./redsage -b 45 
+./redsage -b 45 redmine.csv
+
+# tell RedSage to join requirement pipelines and split off two specific pipelines
+./redsage -s pipeline1 -s pipeline2 redmine.csv  
 ```
 
 ## License
