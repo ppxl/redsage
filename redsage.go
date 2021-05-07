@@ -2,7 +2,10 @@ package main
 
 import (
 	"github.com/pkg/errors"
+	"github.com/ppxl/sagemine/core"
+	"github.com/ppxl/sagemine/cruncher"
 	"github.com/ppxl/sagemine/logging"
+	"github.com/ppxl/sagemine/reader"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"os"
@@ -80,7 +83,7 @@ func run() *cli.Command {
 	return &cli.Command{
 		Name:   "run",
 		Usage:  "read Redmine work time data and convert them to Sage-compatible data",
-		Action: doRun,
+		Action: doCliRun,
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    flagLunchBreakInMinutesLong,
@@ -97,7 +100,48 @@ func run() *cli.Command {
 	}
 }
 
-func doRun(*cli.Context) error {
+func doCliRun(cliCtx *cli.Context) error {
+	filename := cliCtx.Args().First()
+	lunchBreakInMin := cliCtx.Int(flagLunchBreakInMinutesLong)
+	return doRun(filename, lunchBreakInMin)
+}
+
+func doRun(path string, lunchBreakInMin int) error {
+	// read
+	options := reader.Options{
+		Type: reader.CSV,
+		CSVOptions: reader.CSVOptions{
+			Filename:              path,
+			CSVDelimiter:          ";",
+			InputDecimalDelimiter: ",",
+			SkipColumnNames:       []string{"Gesamtzeit"},
+			SkipSummaryLine:       false,
+		},
+		APIOptions: reader.APIOptions{},
+	}
+	redmineReader := reader.New(options)
+
+	data, err := redmineReader.Read()
+	if err != nil {
+		return errors.Wrapf(err, "error while reading from %s", path)
+	}
+
+	// crunch
+	crunchConfig := cruncher.Config{
+		LunchBreakInMin:     lunchBreakInMin,
+		SinglePipelineNames: []core.PipelineName{(core.PipelineName)("Pipeline A")},
+	}
+	crunch := cruncher.New()
+
+	crunched, err := crunch.Crunch(data, crunchConfig)
+	if err != nil {
+		return errors.Wrapf(err, "error while crunching data")
+	}
+
+	//fake
+	if crunched.NamedDaySageValues != nil {
+
+	}
 
 	return nil
 }

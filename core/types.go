@@ -4,12 +4,6 @@ import "fmt"
 
 const timeSlotFormat = "%s - %s"
 
-// Config contains configuration values that modify the number crunching behaviour.
-type Config struct {
-	LunchBreakInMin     int
-	SinglePipelineNames []PipelineName
-}
-
 func NewPipelineData() *PipelineData {
 	values := make(map[PipelineName]RedmineWorkPerDay, 0)
 	return &PipelineData{NamedDayRedmineValues: values}
