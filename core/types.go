@@ -33,21 +33,35 @@ func (pd *PipelineData) AddPipeline(pipelineName string) (*RedmineWorkPerDay, er
 		return nil, errors.New("pipeline name must not be empty")
 	}
 
-	pipeline := &RedmineWorkPerDay{}
+	pipeline := newRedmineWorkPerDay()
 	pd.NamedDayRedmineValues[(PipelineName)(pipelineName)] = pipeline
 
 	return pipeline, nil
 }
 
 // RedmineWorkPerDay maps a date string to the accumulated amount of time spent, f. i. 2021-05-05 -> 5.75
-type RedmineWorkPerDay map[string]float64
+type RedmineWorkPerDay struct {
+	WorkPerDay map[string]float64
+}
+
+func newRedmineWorkPerDay() *RedmineWorkPerDay {
+	values := make(map[string]float64, 0)
+	return &RedmineWorkPerDay{WorkPerDay: values}
+}
 
 func (rwpd *RedmineWorkPerDay) Days() int {
-	return len(*rwpd)
+	return len(rwpd.WorkPerDay)
 }
 
 func (rwpd *RedmineWorkPerDay) PutWorkTime(date string, workTime float64) {
-	(*rwpd)[date] = workTime
+	currentWorkTime := rwpd.WorkTime(date)
+	currentWorkTime += workTime
+
+	rwpd.WorkPerDay[date] = currentWorkTime
+}
+
+func (rwpd *RedmineWorkPerDay) WorkTime(date string) float64 {
+	return rwpd.WorkPerDay[date]
 }
 
 // CrunchedOutput contains mappings from pipeline name to Sage compatible work time
