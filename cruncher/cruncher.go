@@ -54,16 +54,19 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 			}
 
 			if worktime == 0.0 {
+				pipeline.PutTimeSlot(day, "-", "-")
 				continue
 			}
 
-			start := currentDay.Format("15:04")
+			const wallClockLayout = "15:04"
+			start := currentDay.Format(wallClockLayout)
 			if currentDay.Minute() != 0 {
 				roundedNextHour := currentDay.Add(1 * time.Hour).Add(-time.Duration(currentDay.Minute()) * time.Minute)
-				start = roundedNextHour.Format("15:04")
+				logrus.Debugf("Rounding up %s to next hour %s", start, roundedNextHour)
+				start = roundedNextHour.Format(wallClockLayout)
 			}
 			endTime := currentDay.Add(time.Duration(worktime) * time.Hour)
-			end := endTime.Format("15:04")
+			end := endTime.Format(wallClockLayout)
 
 			pipeline.PutTimeSlot(day, start, end)
 			currentDay = endTime

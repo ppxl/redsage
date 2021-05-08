@@ -9,18 +9,22 @@ import (
 
 const (
 	pipelineAName = "Pipeline A"
-	pipelineBName = "Pipeline 2/B"
+	date3         = "2021-05-03"
+	date4         = "2021-05-04"
+	date5         = "2021-05-05"
+	date6         = "2021-05-06"
+	date7         = "2021-05-07"
 )
 
 func Test_cruncher_Crunch(t *testing.T) {
 	t.Run("should add 1 hour lunch break to joined pipeline", func(t *testing.T) {
 		input := core.NewPipelineData()
 		pipelineA, _ := input.AddPipeline(pipelineAName)
-		pipelineA.PutWorkTime("2021-05-03", 0)
-		pipelineA.PutWorkTime("2021-05-04", 1)
-		pipelineA.PutWorkTime("2021-05-05", 4)
-		pipelineA.PutWorkTime("2021-05-06", 4.5)
-		pipelineA.PutWorkTime("2021-05-07", 6)
+		pipelineA.PutWorkTime(date3, 0)
+		pipelineA.PutWorkTime(date4, 1)
+		pipelineA.PutWorkTime(date5, 4)
+		pipelineA.PutWorkTime(date6, 4.5)
+		pipelineA.PutWorkTime(date7, 6)
 
 		config := Config{
 			LunchBreakInMin: 60,
@@ -36,21 +40,24 @@ func Test_cruncher_Crunch(t *testing.T) {
 		expected := core.NewCrunchedOutput()
 		expectedPipelineA, err := expected.AddPipeline(pipelineAName)
 		require.NoError(t, err)
-		expectedPipelineA.PutTimeSlot("2021-05-03", "-", "-")
+		expectedPipelineA.PutTimeSlot(date3, "-", "-")
 
-		expectedPipelineA.PutTimeSlot("2021-05-04", "08:00", "12:00")
-		expectedPipelineA.PutTimeSlot("2021-05-04", "13:00", "14:00")
+		expectedPipelineA.PutTimeSlot(date4, "08:00", "12:00")
+		expectedPipelineA.PutTimeSlot(date4, "12:00", "14:00")
 
-		expectedPipelineA.PutTimeSlot("2021-05-05", "08:00", "12:00")
-		expectedPipelineA.PutTimeSlot("2021-05-05", "13:00", "17:00")
+		expectedPipelineA.PutTimeSlot(date5, "08:00", "12:00")
+		expectedPipelineA.PutTimeSlot(date5, "13:00", "17:00")
 
-		expectedPipelineA.PutTimeSlot("2021-05-06", "08:00", "12:00")
-		expectedPipelineA.PutTimeSlot("2021-05-06", "13:00", "16:30")
+		expectedPipelineA.PutTimeSlot(date6, "08:00", "12:00")
+		expectedPipelineA.PutTimeSlot(date6, "13:00", "16:30")
 
-		expectedPipelineA.PutTimeSlot("2021-05-07", "08:00", "12:00")
-		expectedPipelineA.PutTimeSlot("2021-05-07", "13:00", "15:00")
-		assert.Equal(t, 4, actual.NamedDaySageValues[pipelineAName].Days())
-		assert.Equal(t, expected.String(), actual.String())
-
+		expectedPipelineA.PutTimeSlot(date7, "08:00", "12:00")
+		expectedPipelineA.PutTimeSlot(date7, "13:00", "15:00")
+		assert.Equal(t, 5, actual.NamedDaySageValues[pipelineAName].Days())
+		assert.ElementsMatch(t, (*expectedPipelineA)[date3], (*actual.NamedDaySageValues[pipelineAName])[date3])
+		assert.ElementsMatch(t, (*expectedPipelineA)[date4], (*actual.NamedDaySageValues[pipelineAName])[date4])
+		assert.ElementsMatch(t, (*expectedPipelineA)[date5], (*actual.NamedDaySageValues[pipelineAName])[date5])
+		assert.ElementsMatch(t, (*expectedPipelineA)[date6], (*actual.NamedDaySageValues[pipelineAName])[date6])
+		assert.ElementsMatch(t, (*expectedPipelineA)[date7], (*actual.NamedDaySageValues[pipelineAName])[date7])
 	})
 }
