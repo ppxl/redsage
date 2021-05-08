@@ -18,6 +18,16 @@ var (
 	log = logrus.New()
 )
 
+type runArgs struct {
+	lunchBreakInMin  int
+	singlePipelines  []string
+	filename         string
+	csvDelimiter     string
+	decimalDelimiter string
+	skipColumnNames  []string
+	skipSummaryLine  bool
+}
+
 func createGlobalFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
@@ -77,24 +87,50 @@ const (
 	flagLunchBreakInMinutesShort = "b"
 	flagSinglePipelinesLong      = "single"
 	flagSinglePipelinesShort     = "s"
+	flagCSVColumnDelimiterLong   = "csv-column-delimiter"
+	flagCSVColumnDelimiterShort  = "c"
+	flagDecimalDelimiterLong     = "decimal-delimiter"
+	flagDecimalDelimiterShort    = "d"
+	flagIgnoreSummaryLineLong    = "ignore-summary-line"
+	flagIgnoreSummaryLineShort   = "i"
 )
 
 func run() *cli.Command {
 	return &cli.Command{
-		Name:   "run",
-		Usage:  "read Redmine work time data and convert them to Sage-compatible data",
-		Action: doCliRun,
+		Name:      "run",
+		Usage:     "read Redmine work time data and convert them to Sage-compatible data",
+		Action:    doCliRun,
+		ArgsUsage: "redmine CSV file",
 		Flags: []cli.Flag{
 			&cli.IntFlag{
 				Name:    flagLunchBreakInMinutesLong,
 				Aliases: []string{flagLunchBreakInMinutesShort},
-				Usage:   "lunch break time in minutes",
+				Usage:   "lunch break time in minutes (optional)",
 				Value:   60,
 			},
 			&cli.StringSliceFlag{
 				Name:    flagSinglePipelinesLong,
 				Aliases: []string{flagSinglePipelinesShort},
-				Usage:   "these pipelines will receive their own pipeline and will not be joint into a single pseudo-pipeline",
+				Usage: "These pipelines will receive their own pipeline and will not be joint into a single pseudo-pipeline (optional). " +
+					"All other pipelines will be merged into a single pseudo-pipeline.",
+			},
+			&cli.StringFlag{
+				Name:    flagCSVColumnDelimiterLong,
+				Aliases: []string{flagCSVColumnDelimiterShort},
+				Usage:   "this delimiter will be used to parse CSV columns (optional)",
+				Value:   ";",
+			},
+			&cli.StringFlag{
+				Name:    flagDecimalDelimiterLong,
+				Aliases: []string{flagDecimalDelimiterShort},
+				Usage:   "Set the decimal delimiter if the decimals in the CSV export uses a different format than '2.75' (optional)",
+				Value:   ".",
+			},
+			&cli.BoolFlag{
+				Name:    flagIgnoreSummaryLineLong,
+				Aliases: []string{flagIgnoreSummaryLineShort},
+				Usage:   "Set if the last line in the CSV export should be included or nto (optional)",
+				Value:   true,
 			},
 		},
 	}
@@ -103,15 +139,30 @@ func run() *cli.Command {
 func doCliRun(cliCtx *cli.Context) error {
 	filename := cliCtx.Args().First()
 	lunchBreakInMin := cliCtx.Int(flagLunchBreakInMinutesLong)
-	return doRun(filename, lunchBreakInMin)
+	csvColumnDelimiter := cliCtx.String(flagCSVColumnDelimiterLong)
+	decimalDelimiter := cliCtx.String(flagDecimalDelimiterLong)
+	ignoreSummaryLine := cliCtx.Bool(flagIgnoreSummaryLineLong)
+	singlePipelines := cliCtx.StringSlice(flagSinglePipelinesLong)
+
+	args := runArgs{
+		lunchBreakInMin:  lunchBreakInMin,
+		singlePipelines:  singlePipelines,
+		filename:         filename,
+		csvDelimiter:     csvColumnDelimiter,
+		decimalDelimiter: decimalDelimiter,
+		skipColumnNames:  nil,
+		skipSummaryLine:  ignoreSummaryLine,
+	}
+
+	return doRun(args)
 }
 
-func doRun(path string, lunchBreakInMin int) error {
+func doRun(args runArgs) error {
 	// read
 	options := reader.Options{
 		Type: reader.CSV,
 		CSVOptions: reader.CSVOptions{
-			Filename:              path,
+			Filename:              args.filename,
 			CSVDelimiter:          ";",
 			InputDecimalDelimiter: ",",
 			SkipColumnNames:       []string{"Gesamtzeit"},
@@ -123,12 +174,12 @@ func doRun(path string, lunchBreakInMin int) error {
 
 	data, err := redmineReader.Read()
 	if err != nil {
-		return errors.Wrapf(err, "error while reading from %s", path)
+		return errors.Wrapf(err, "error while reading from %s", args.filename)
 	}
 
 	// crunch
 	crunchConfig := cruncher.Config{
-		LunchBreakInMin:     lunchBreakInMin,
+		LunchBreakInMin:     args.lunchBreakInMin,
 		SinglePipelineNames: []core.PipelineName{(core.PipelineName)("Pipeline A")},
 	}
 	crunch := cruncher.New()
