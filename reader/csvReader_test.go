@@ -47,14 +47,14 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		expectedEntry["2021-05-05"] = 0
 		expectedEntry["2021-05-06"] = 4.50
 		expectedEntry["Gesamtzeit"] = 18
-		expected.NamedDayRedmineValues[pipelineA] = expectedEntry
+		expected.NamedDayRedmineValues[pipelineA] = &expectedEntry
 		expectedSums := core.RedmineWorkPerDay{}
 		expectedSums["2021-05-03"] = 7.50
 		expectedSums["2021-05-04"] = 6
 		expectedSums["2021-05-05"] = 0
 		expectedSums["2021-05-06"] = 4.50
 		expectedSums["Gesamtzeit"] = 18
-		expected.NamedDayRedmineValues["Gesamtzeit"] = expectedSums
+		expected.NamedDayRedmineValues["Gesamtzeit"] = &expectedSums
 		assert.Equal(t, expected, actual)
 	})
 
@@ -92,13 +92,13 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		expectedEntry["2021-05-04"] = 6
 		expectedEntry["2021-05-05"] = 0
 		expectedEntry["2021-05-06"] = 4.50
-		expected.NamedDayRedmineValues["Pipeline A"] = expectedEntry
+		expected.NamedDayRedmineValues["Pipeline A"] = &expectedEntry
 		expectedSums := core.RedmineWorkPerDay{}
 		expectedSums["2021-05-03"] = 7.50
 		expectedSums["2021-05-04"] = 6
 		expectedSums["2021-05-05"] = 0
 		expectedSums["2021-05-06"] = 4.50
-		expected.NamedDayRedmineValues["Gesamtzeit"] = expectedSums
+		expected.NamedDayRedmineValues["Gesamtzeit"] = &expectedSums
 		assert.Equal(t, expected, actual)
 	})
 
@@ -137,7 +137,7 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		expectedEntry["2021-05-05"] = 0
 		expectedEntry["2021-05-06"] = 4.50
 		expectedEntry["Gesamtzeit"] = 18
-		expected.NamedDayRedmineValues["Pipeline A"] = expectedEntry
+		expected.NamedDayRedmineValues["Pipeline A"] = &expectedEntry
 		assert.Equal(t, expected, actual)
 	})
 }

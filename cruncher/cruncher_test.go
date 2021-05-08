@@ -24,7 +24,7 @@ func Test_cruncher_Crunch(t *testing.T) {
 		pipelineB["2021-05-06"] = 3.75
 		pipelineB["2021-05-06"] = 0
 
-		input.NamedDayRedmineValues["Pipeline A"] = pipelineA
+		input.NamedDayRedmineValues["Pipeline A"] = &pipelineA
 
 		config := Config{
 			LunchBreakInMin:     60,

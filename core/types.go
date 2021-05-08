@@ -1,22 +1,36 @@
 package core
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 const timeSlotFormat = "%s - %s"
 
 func NewPipelineData() *PipelineData {
-	values := make(map[PipelineName]RedmineWorkPerDay, 0)
+	values := make(map[PipelineName]*RedmineWorkPerDay, 0)
 	return &PipelineData{NamedDayRedmineValues: values}
 }
 
 // PipelineData contain parsed Redmine Pipeline data. Redmine divides hour in a decimal way, i. e. 0.5 means 30 minutes.
 type PipelineData struct {
 	// NamedDayValues maps the pipeline name to actual values per day, f. i. Pipeline 1 -> 2021-05-05 -> 5.75
-	NamedDayRedmineValues map[PipelineName]RedmineWorkPerDay
+	NamedDayRedmineValues map[PipelineName]*RedmineWorkPerDay
 }
 
-func (pd PipelineData) Entries() int {
+func (pd *PipelineData) Entries() int {
 	return len(pd.NamedDayRedmineValues)
+}
+
+func (pd *PipelineData) AddPipeline(pipelineName string) (*RedmineWorkPerDay, error) {
+	if pipelineName == "" {
+		return nil, errors.New("pipeline name must not be empty")
+	}
+
+	pipeline := &RedmineWorkPerDay{}
+	pd.NamedDayRedmineValues[(PipelineName)(pipelineName)] = pipeline
+
+	return pipeline, nil
 }
 
 // RedmineWorkPerDay maps a date string to the accumulated amount of time spent, f. i. 2021-05-05 -> 5.75
