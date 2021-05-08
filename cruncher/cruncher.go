@@ -63,6 +63,7 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 			end := endTime.Format("15:04")
 
 			pipeline.PutTimeSlot(day, start, end)
+			currentDay = endTime
 		}
 	}
 

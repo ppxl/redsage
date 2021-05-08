@@ -96,22 +96,22 @@ func (co *CrunchedOutput) AddPipeline(pipelineName string) (*SageWorkPerDay, err
 }
 
 // SageWorkPerDay maps a date string to a simplified Sage time slow, f. i. 2021-05-05 -> 13:00 - 14:00
-type SageWorkPerDay map[string]*TimeSlot
+type SageWorkPerDay map[string][]TimeSlot
 
 func (swpd *SageWorkPerDay) Days() int {
 	return len(*swpd)
 }
 
 func (swpd *SageWorkPerDay) PutTimeSlot(date string, slotStart, slotEnd string) {
-	timeSlot := swpd.timeSlot(date)
-	if timeSlot == nil {
-		timeSlot = &TimeSlot{}
-	}
+	timeSlots := swpd.timeSlots(date)
 
+	timeSlot := TimeSlot{}
 	timeSlot.Start = slotStart
 	timeSlot.End = slotEnd
 
-	(*swpd)[date] = timeSlot
+	timeSlots = append(timeSlots, timeSlot)
+
+	(*swpd)[date] = timeSlots
 }
 
 func (swpd *SageWorkPerDay) String() string {
@@ -123,7 +123,7 @@ func (swpd *SageWorkPerDay) String() string {
 	return result
 }
 
-func (swpd *SageWorkPerDay) timeSlot(day string) *TimeSlot {
+func (swpd *SageWorkPerDay) timeSlots(day string) []TimeSlot {
 	return (*swpd)[day]
 }
 

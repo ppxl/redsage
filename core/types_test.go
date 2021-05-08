@@ -38,28 +38,29 @@ func TestSageWorkPerDay_PutTimeSlot(t *testing.T) {
 
 		// when
 		sut.PutTimeSlot(theDate, startTime, endTime)
-		actual := sut.timeSlot(theDate)
+		actual := sut.timeSlots(theDate)
 
 		// then
 		require.NotNil(t, actual)
-		expected := &TimeSlot{
+		expected := []TimeSlot{{
 			Start: startTime,
-			End:   endTime,
+			End:   endTime},
 		}
 		assert.Equal(t, expected, actual)
 	})
-	t.Run("should add another, non-conflicting time slot to the same date", func(t *testing.T) {
+	t.Run("should add another time slot to the same date", func(t *testing.T) {
 		sut := SageWorkPerDay{}
 
 		// when
 		sut.PutTimeSlot(theDate, startTime, endTime)
-		actual := sut.timeSlot(theDate)
+		sut.PutTimeSlot(theDate, endTime, "10:00")
+		actual := sut.timeSlots(theDate)
 
 		// then
 		require.NotNil(t, actual)
-		expected := &TimeSlot{
-			Start: startTime,
-			End:   endTime,
+		expected := []TimeSlot{
+			{Start: startTime, End: endTime},
+			{Start: endTime, End: "10:00"},
 		}
 		assert.Equal(t, expected, actual)
 	})
@@ -69,7 +70,7 @@ func TestSageWorkPerDay_timeSlot(t *testing.T) {
 	t.Run("should return nil for unset time slot", func(t *testing.T) {
 		sut := SageWorkPerDay{}
 
-		actual := sut.timeSlot(theDate)
+		actual := sut.timeSlots(theDate)
 
 		assert.Nil(t, actual)
 	})
@@ -79,13 +80,13 @@ func TestSageWorkPerDay_timeSlot(t *testing.T) {
 		sut.PutTimeSlot(theDate, startTime, endTime)
 
 		// when
-		actual := sut.timeSlot(theDate)
+		actual := sut.timeSlots(theDate)
 
 		// then
 		require.NotNil(t, actual)
-		expected := &TimeSlot{
+		expected := []TimeSlot{{
 			Start: startTime,
-			End:   endTime,
+			End:   endTime},
 		}
 		assert.Equal(t, expected, actual)
 	})

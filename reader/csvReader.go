@@ -117,7 +117,7 @@ func (cr *csvReader) Read() (*core.PipelineData, error) {
 
 			currentDay := columnHeaders[currentColumn]
 
-			entry[currentDay] = workTime
+			entry.WorkPerDay[currentDay] = workTime
 		}
 
 		result.NamedDayRedmineValues[pipeline] = &entry
