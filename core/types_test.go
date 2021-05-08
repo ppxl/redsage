@@ -38,7 +38,7 @@ func TestSageWorkPerDay_PutTimeSlot(t *testing.T) {
 
 		// when
 		sut.PutTimeSlot(theDate, startTime, endTime)
-		actual := sut.timeSlots(theDate)
+		actual := sut.TimeSlots(theDate)
 
 		// then
 		require.NotNil(t, actual)
@@ -54,7 +54,7 @@ func TestSageWorkPerDay_PutTimeSlot(t *testing.T) {
 		// when
 		sut.PutTimeSlot(theDate, startTime, endTime)
 		sut.PutTimeSlot(theDate, endTime, "10:00")
-		actual := sut.timeSlots(theDate)
+		actual := sut.TimeSlots(theDate)
 
 		// then
 		require.NotNil(t, actual)
@@ -70,7 +70,7 @@ func TestSageWorkPerDay_timeSlot(t *testing.T) {
 	t.Run("should return nil for unset time slot", func(t *testing.T) {
 		sut := SageWorkPerDay{}
 
-		actual := sut.timeSlots(theDate)
+		actual := sut.TimeSlots(theDate)
 
 		assert.Nil(t, actual)
 	})
@@ -80,7 +80,7 @@ func TestSageWorkPerDay_timeSlot(t *testing.T) {
 		sut.PutTimeSlot(theDate, startTime, endTime)
 
 		// when
-		actual := sut.timeSlots(theDate)
+		actual := sut.TimeSlots(theDate)
 
 		// then
 		require.NotNil(t, actual)

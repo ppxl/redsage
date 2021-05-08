@@ -103,7 +103,7 @@ func (swpd *SageWorkPerDay) Days() int {
 }
 
 func (swpd *SageWorkPerDay) PutTimeSlot(date string, slotStart, slotEnd string) {
-	timeSlots := swpd.timeSlots(date)
+	timeSlots := swpd.TimeSlots(date)
 
 	timeSlot := TimeSlot{}
 	timeSlot.Start = slotStart
@@ -123,7 +123,7 @@ func (swpd *SageWorkPerDay) String() string {
 	return result
 }
 
-func (swpd *SageWorkPerDay) timeSlots(day string) []TimeSlot {
+func (swpd *SageWorkPerDay) TimeSlots(day string) []TimeSlot {
 	return (*swpd)[day]
 }
 

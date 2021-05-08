@@ -50,6 +50,7 @@ func Test_cruncher_Crunch(t *testing.T) {
 
 		expectedPipelineA.PutTimeSlot("2021-05-07", "08:00", "12:00")
 		expectedPipelineA.PutTimeSlot("2021-05-07", "13:00", "15:00")
-		assert.Equal(t, *expected, *actual)
+		assert.Equal(t, 4, actual.NamedDaySageValues[pipelineAName].Days())
+		assert.ElementsMatch(t, *expected.NamedDaySageValues[pipelineAName], *actual.NamedDaySageValues[pipelineAName])
 	})
 }
