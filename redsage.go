@@ -145,6 +145,10 @@ func run() *cli.Command {
 }
 
 func doCliRun(cliCtx *cli.Context) error {
+	if cliCtx.Args().Len() < 1 {
+		_ = cli.ShowAppHelp(cliCtx)
+		return errors.New("filename argument missed")
+	}
 	if cliCtx.Args().Len() > 1 {
 		_ = cli.ShowAppHelp(cliCtx)
 		return fmt.Errorf("found more arguments than expected: '%v'", cliCtx.Args().Slice()[1:])
@@ -172,7 +176,25 @@ func doCliRun(cliCtx *cli.Context) error {
 }
 
 func doRun(args runArgs) error {
-	// read
+	data, err := readCSV(args)
+	if err != nil {
+		return err
+	}
+
+	crunched, err := crunch(data, args)
+	if err != nil {
+		return err
+	}
+
+	//fake
+	if crunched.NamedDaySageValues != nil {
+
+	}
+
+	return nil
+}
+
+func readCSV(args runArgs) (*core.PipelineData, error) {
 	options := reader.Options{
 		Type: reader.CSV,
 		CSVOptions: reader.CSVOptions{
@@ -188,10 +210,13 @@ func doRun(args runArgs) error {
 
 	data, err := redmineReader.Read()
 	if err != nil {
-		return errors.Wrapf(err, "error while reading from %s", args.filename)
+		return nil, errors.Wrapf(err, "error while reading from %s", options.CSVOptions.Filename)
 	}
 
-	// crunch
+	return data, err
+}
+
+func crunch(data *core.PipelineData, args runArgs) (*core.CrunchedOutput, error) {
 	crunchConfig := cruncher.Config{
 		LunchBreakInMin:     args.lunchBreakInMin,
 		SinglePipelineNames: []core.PipelineName{(core.PipelineName)("Pipeline A")},
@@ -200,13 +225,8 @@ func doRun(args runArgs) error {
 
 	crunched, err := crunch.Crunch(data, crunchConfig)
 	if err != nil {
-		return errors.Wrapf(err, "error while crunching data")
+		return nil, errors.Wrapf(err, "error while crunching data")
 	}
 
-	//fake
-	if crunched.NamedDaySageValues != nil {
-
-	}
-
-	return nil
+	return crunched, nil
 }
