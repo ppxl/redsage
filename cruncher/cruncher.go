@@ -4,6 +4,10 @@ import (
 	"github.com/ppxl/sagemine/core"
 )
 
+const (
+	lunchStartTime = "12:00"
+)
+
 // Config contains configuration values that modify the number crunching behaviour.
 type Config struct {
 	LunchBreakInMin     int
@@ -25,5 +29,6 @@ func New() *cruncher {
 
 // Crunch executes the merging and splitting values from a CSV file and prints the output in Sage-relatable manner.
 func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.CrunchedOutput, error) {
+
 	return nil, nil
 }
