@@ -147,6 +147,7 @@ dist
 .idea
 
 build/tmp
+build/deb
 build/home
 .scannerwork
 
