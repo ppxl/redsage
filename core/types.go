@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"sort"
 )
 
@@ -73,7 +74,9 @@ type CrunchedOutput struct {
 func (co *CrunchedOutput) String() string {
 	result := ""
 
-	for pipeline, dayValue := range co.SortedKeys() {
+	sortedKeys := co.SortedKeys()
+	for pipeline, dayValue := range sortedKeys {
+		logrus.Info("String: dayValue: " + dayValue)
 		result += fmt.Sprintf("p: %s, %s", pipeline, co.NamedDaySageValues[(PipelineName)(dayValue)])
 	}
 
@@ -127,11 +130,22 @@ func (swpd *SageWorkPerDay) PutTimeSlot(date string, slotStart, slotEnd string) 
 
 func (swpd *SageWorkPerDay) String() string {
 	result := ""
-	for pipeline, timeSlot := range *swpd {
+	sortedKeys := swpd.SortedKeys()
+	for pipeline, timeSlot := range sortedKeys {
 		result += fmt.Sprintf("d: %s, ts: %s\t", pipeline, timeSlot)
 	}
 
 	return result
+}
+
+func (swpd *SageWorkPerDay) SortedKeys() []string {
+	keys := make([]string, 0, len(*swpd))
+	for k := range *swpd {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	return keys
 }
 
 func (swpd *SageWorkPerDay) TimeSlots(day string) []TimeSlot {
