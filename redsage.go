@@ -11,11 +11,23 @@ import (
 	"os"
 )
 
+const (
+	flagLunchBreakInMinutesLong  = "break"
+	flagLunchBreakInMinutesShort = "b"
+	flagSinglePipelinesLong      = "single"
+	flagSinglePipelinesShort     = "s"
+	flagCSVColumnDelimiterLong   = "csv-column-delimiter"
+	flagCSVColumnDelimiterShort  = "c"
+	flagDecimalDelimiterLong     = "decimal-delimiter"
+	flagDecimalDelimiterShort    = "d"
+	flagIgnoreSummaryLineLong    = "ignore-summary-line"
+	flagIgnoreSummaryLineShort   = "i"
+)
+
 var (
 	// Version of the application
 	Version string
-
-	log = logrus.New()
+	log     = logrus.New()
 )
 
 type runArgs struct {
@@ -81,19 +93,6 @@ func main() {
 	err := app.Run(os.Args)
 	checkMainError(err)
 }
-
-const (
-	flagLunchBreakInMinutesLong  = "break"
-	flagLunchBreakInMinutesShort = "b"
-	flagSinglePipelinesLong      = "single"
-	flagSinglePipelinesShort     = "s"
-	flagCSVColumnDelimiterLong   = "csv-column-delimiter"
-	flagCSVColumnDelimiterShort  = "c"
-	flagDecimalDelimiterLong     = "decimal-delimiter"
-	flagDecimalDelimiterShort    = "d"
-	flagIgnoreSummaryLineLong    = "ignore-summary-line"
-	flagIgnoreSummaryLineShort   = "i"
-)
 
 func run() *cli.Command {
 	return &cli.Command{
