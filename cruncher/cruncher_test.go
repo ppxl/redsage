@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
 )
 
 const (
@@ -41,23 +42,44 @@ func Test_cruncher_Crunch(t *testing.T) {
 		expectedPipelineA, err := expected.AddPipeline(pipelineAName)
 		require.NoError(t, err)
 		expectedPipelineA.PutTimeSlot(date3, "-", "-")
-
-		expectedPipelineA.PutTimeSlot(date4, "08:00", "12:00")
-		expectedPipelineA.PutTimeSlot(date4, "12:00", "14:00")
-
+		expectedPipelineA.PutTimeSlot(date4, "08:00", "09:00")
 		expectedPipelineA.PutTimeSlot(date5, "08:00", "12:00")
-		expectedPipelineA.PutTimeSlot(date5, "13:00", "17:00")
-
 		expectedPipelineA.PutTimeSlot(date6, "08:00", "12:00")
-		expectedPipelineA.PutTimeSlot(date6, "13:00", "16:30")
-
+		expectedPipelineA.PutTimeSlot(date6, "13:00", "13:30")
 		expectedPipelineA.PutTimeSlot(date7, "08:00", "12:00")
 		expectedPipelineA.PutTimeSlot(date7, "13:00", "15:00")
 		assert.Equal(t, 5, actual.NamedDaySageValues[pipelineAName].Days())
-		assert.ElementsMatch(t, (*expectedPipelineA)[date3], (*actual.NamedDaySageValues[pipelineAName])[date3])
-		assert.ElementsMatch(t, (*expectedPipelineA)[date4], (*actual.NamedDaySageValues[pipelineAName])[date4])
-		assert.ElementsMatch(t, (*expectedPipelineA)[date5], (*actual.NamedDaySageValues[pipelineAName])[date5])
-		assert.ElementsMatch(t, (*expectedPipelineA)[date6], (*actual.NamedDaySageValues[pipelineAName])[date6])
-		assert.ElementsMatch(t, (*expectedPipelineA)[date7], (*actual.NamedDaySageValues[pipelineAName])[date7])
+		assert.Equal(t, (*expectedPipelineA)[date3], (*actual.NamedDaySageValues[pipelineAName])[date3])
+		assert.Equal(t, (*expectedPipelineA)[date4], (*actual.NamedDaySageValues[pipelineAName])[date4])
+		assert.Equal(t, (*expectedPipelineA)[date5], (*actual.NamedDaySageValues[pipelineAName])[date5])
+		assert.Equal(t, (*expectedPipelineA)[date6], (*actual.NamedDaySageValues[pipelineAName])[date6])
+		assert.Equal(t, (*expectedPipelineA)[date7], (*actual.NamedDaySageValues[pipelineAName])[date7])
+	})
+}
+
+func Test_endTimeFallsIntoLunch(t *testing.T) {
+	t.Run("should be false for 11:00 < 12:00", func(t *testing.T) {
+		worktimeEnd, _ := time.Parse(time.RFC3339, date5+"T11:00:00Z")
+		actualDiff, actualHit := endTimeFallsIntoLunch(worktimeEnd, date5)
+		assert.False(t, actualHit)
+		assert.Equal(t, time.Duration(0), actualDiff)
+	})
+	t.Run("should be false for 12:00 == 12:00", func(t *testing.T) {
+		worktimeEnd, _ := time.Parse(time.RFC3339, date5+"T12:00:00Z")
+		actualDiff, actualHit := endTimeFallsIntoLunch(worktimeEnd, date5)
+		assert.False(t, actualHit)
+		assert.Equal(t, time.Duration(0), actualDiff)
+	})
+	t.Run("should be true for 12:01 > 12:00", func(t *testing.T) {
+		worktimeEnd, _ := time.Parse(time.RFC3339, date5+"T12:01:00Z")
+		actualDiff, actualMiss := endTimeFallsIntoLunch(worktimeEnd, date5)
+		assert.True(t, actualMiss)
+		assert.Equal(t, 1*time.Minute, actualDiff)
+	})
+	t.Run("should be true for 13:00 > 12:00", func(t *testing.T) {
+		worktimeEnd, _ := time.Parse(time.RFC3339, date5+"T13:00:00Z")
+		actualDiff, actualMiss := endTimeFallsIntoLunch(worktimeEnd, date5)
+		assert.True(t, actualMiss)
+		assert.Equal(t, 1*time.Hour, actualDiff)
 	})
 }

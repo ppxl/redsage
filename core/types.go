@@ -152,6 +152,10 @@ func (swpd *SageWorkPerDay) TimeSlots(day string) []TimeSlot {
 	return (*swpd)[day]
 }
 
+func (swpd *SageWorkPerDay) PutEmptyTimeSlot(day string) {
+	swpd.PutTimeSlot(day, "-", "-")
+}
+
 // TimeSlot represents a dateless wall clock interval of work, f. i. from 13:00 till 14:15
 type TimeSlot struct {
 	// Start contains the time slot's ending time in 24-hour format, f. i. "13:00" for 1 pm
