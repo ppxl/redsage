@@ -3,6 +3,7 @@ package core
 import (
 	"errors"
 	"fmt"
+	"sort"
 )
 
 const timeSlotFormat = "%s - %s"
@@ -72,11 +73,21 @@ type CrunchedOutput struct {
 func (co *CrunchedOutput) String() string {
 	result := ""
 
-	for pipeline, dayValue := range co.NamedDaySageValues {
-		result += fmt.Sprintf("p: %s, %s", pipeline, dayValue)
+	for pipeline, dayValue := range co.SortedKeys() {
+		result += fmt.Sprintf("p: %s, %s", pipeline, co.NamedDaySageValues[(PipelineName)(dayValue)])
 	}
 
 	return result
+}
+
+func (co *CrunchedOutput) SortedKeys() []string {
+	keys := make([]string, 0, len(co.NamedDaySageValues))
+	for k := range co.NamedDaySageValues {
+		keys = append(keys, (string)(k))
+	}
+	sort.Strings(keys)
+
+	return keys
 }
 
 func NewCrunchedOutput() *CrunchedOutput {

@@ -43,9 +43,8 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 			return nil, errors.Wrap(err, "error while crunching time data")
 		}
 
-		currentDay := time.Unix(0, 0)
-
 		for day, worktime := range workPerDay.WorkPerDay {
+			currentDay := time.Unix(0, 0)
 			if currentDay == time.Unix(0, 0) {
 				firstDayString := day + "T" + dayStartTime + "Z"
 				currentDay, err = time.Parse(time.RFC3339, firstDayString)
@@ -59,6 +58,10 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 			}
 
 			start := currentDay.Format("15:04")
+			if currentDay.Minute() != 0 {
+				roundedNextHour := currentDay.Add(1 * time.Hour).Add(-time.Duration(currentDay.Minute()) * time.Minute)
+				start = roundedNextHour.Format("15:04")
+			}
 			endTime := currentDay.Add(time.Duration(worktime) * time.Hour)
 			end := endTime.Format("15:04")
 

@@ -36,8 +36,7 @@ func Test_cruncher_Crunch(t *testing.T) {
 		expected := core.NewCrunchedOutput()
 		expectedPipelineA, err := expected.AddPipeline(pipelineAName)
 		require.NoError(t, err)
-		expectedPipelineA.PutTimeSlot("2021-05-03", "08:00", "12:00")
-		expectedPipelineA.PutTimeSlot("2021-05-03", "13:00", "18:00")
+		expectedPipelineA.PutTimeSlot("2021-05-03", "-", "-")
 
 		expectedPipelineA.PutTimeSlot("2021-05-04", "08:00", "12:00")
 		expectedPipelineA.PutTimeSlot("2021-05-04", "13:00", "14:00")
@@ -51,6 +50,7 @@ func Test_cruncher_Crunch(t *testing.T) {
 		expectedPipelineA.PutTimeSlot("2021-05-07", "08:00", "12:00")
 		expectedPipelineA.PutTimeSlot("2021-05-07", "13:00", "15:00")
 		assert.Equal(t, 4, actual.NamedDaySageValues[pipelineAName].Days())
-		assert.ElementsMatch(t, *expected.NamedDaySageValues[pipelineAName], *actual.NamedDaySageValues[pipelineAName])
+		assert.Equal(t, expected.String(), actual.String())
+
 	})
 }
