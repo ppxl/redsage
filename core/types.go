@@ -117,7 +117,7 @@ func (swpd *SageWorkPerDay) PutTimeSlot(date string, slotStart, slotEnd string) 
 func (swpd *SageWorkPerDay) String() string {
 	result := ""
 	for pipeline, timeSlot := range *swpd {
-		result += fmt.Sprintf("d: %s, ts: %s", pipeline, timeSlot)
+		result += fmt.Sprintf("d: %s, ts: %s\t", pipeline, timeSlot)
 	}
 
 	return result

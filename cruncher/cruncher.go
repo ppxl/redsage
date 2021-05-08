@@ -1,7 +1,6 @@
 package cruncher
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"github.com/ppxl/sagemine/core"
 	"github.com/sirupsen/logrus"
@@ -15,8 +14,7 @@ const (
 
 // Config contains configuration values that modify the number crunching behaviour.
 type Config struct {
-	LunchBreakInMin     int
-	SinglePipelineNames []core.PipelineName
+	LunchBreakInMin int
 }
 
 // Cruncher provides methods for transforming values from a redmine pipeline data.
@@ -36,37 +34,18 @@ func New() *cruncher {
 func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.CrunchedOutput, error) {
 	output := core.NewCrunchedOutput()
 
-	var joinedPipeline *core.SageWorkPerDay
-	var joinedPipelineName string
-	var err error
-
 	for redminePipeline, workPerDay := range pdata.NamedDayRedmineValues {
-		var pipeline *core.SageWorkPerDay
-		if true {
-			if joinedPipeline == nil {
-				pipelineName := string(redminePipeline) + "-joined"
-				joinedPipeline, err = output.AddPipeline(pipelineName)
-				joinedPipelineName = pipelineName
+		logrus.Printf("Add new pipeline %s", redminePipeline)
+		pipelineName := string(redminePipeline)
 
-				logrus.Printf("Add new pipeline %s", redminePipeline)
-
-				if err != nil {
-					return nil, errors.Wrap(err, "error while crunching time data")
-				}
-			}
-			pipeline = joinedPipeline
-		} else {
-			pipeline, err = output.AddPipeline(string(redminePipeline))
-
-			if err != nil {
-				return nil, errors.Wrap(err, "error while crunching time data")
-			}
+		pipeline, err := output.AddPipeline(pipelineName)
+		if err != nil {
+			return nil, errors.Wrap(err, "error while crunching time data")
 		}
 
-		fmt.Printf("%s, \t", joinedPipelineName)
 		currentDay := time.Unix(0, 0)
 
-		for day, worktime := range (map[string]float64)(*workPerDay) {
+		for day, worktime := range workPerDay.WorkPerDay {
 			if currentDay == time.Unix(0, 0) {
 				firstDayString := day + "T" + dayStartTime + "Z"
 				currentDay, err = time.Parse(time.RFC3339, firstDayString)
@@ -75,22 +54,17 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 				}
 			}
 
-			fmt.Printf("%s, %0.2f", day, worktime)
 			if worktime == 0.0 {
-				fmt.Print("*\t")
 				continue
 			}
 
-			fmt.Print("\t")
-
 			start := currentDay.Format("15:04")
-			currentDay.Add(time.Duration(worktime) * time.Hour)
-			end := currentDay.Format("15:04")
+			endTime := currentDay.Add(time.Duration(worktime) * time.Hour)
+			end := endTime.Format("15:04")
 
 			pipeline.PutTimeSlot(day, start, end)
 		}
-
-		fmt.Println()
 	}
+
 	return output, nil
 }
