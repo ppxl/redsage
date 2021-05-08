@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/ppxl/sagemine/core"
 	"github.com/ppxl/sagemine/cruncher"
@@ -12,16 +13,18 @@ import (
 )
 
 const (
-	flagLunchBreakInMinutesLong  = "break"
-	flagLunchBreakInMinutesShort = "b"
-	flagSinglePipelinesLong      = "single"
-	flagSinglePipelinesShort     = "s"
-	flagCSVColumnDelimiterLong   = "csv-column-delimiter"
-	flagCSVColumnDelimiterShort  = "c"
-	flagDecimalDelimiterLong     = "decimal-delimiter"
-	flagDecimalDelimiterShort    = "d"
-	flagIgnoreSummaryLineLong    = "ignore-summary-line"
-	flagIgnoreSummaryLineShort   = "i"
+	flagLunchBreakInMinutesLong   = "break"
+	flagLunchBreakInMinutesShort  = "b"
+	flagSinglePipelinesLong       = "single"
+	flagSinglePipelinesShort      = "s"
+	flagCSVColumnDelimiterLong    = "csv-column-delimiter"
+	flagCSVColumnDelimiterShort   = "c"
+	flagDecimalDelimiterLong      = "decimal-delimiter"
+	flagDecimalDelimiterShort     = "d"
+	flagIgnoreSummaryLineLong     = "ignore-summary-line"
+	flagIgnoreSummaryLineShort    = "i"
+	flagIgnoreColumnWithNameLong  = "ignore-column-name"
+	flagIgnoreColumnWithNameShort = "n"
 )
 
 var (
@@ -113,6 +116,11 @@ func run() *cli.Command {
 				Usage: "These pipelines will receive their own pipeline and will not be joint into a single pseudo-pipeline (optional). " +
 					"All other pipelines will be merged into a single pseudo-pipeline.",
 			},
+			&cli.StringSliceFlag{
+				Name:    flagIgnoreColumnWithNameLong,
+				Aliases: []string{flagIgnoreColumnWithNameShort},
+				Usage:   "columns with these headers will be ignored (optional)",
+			},
 			&cli.StringFlag{
 				Name:    flagCSVColumnDelimiterLong,
 				Aliases: []string{flagCSVColumnDelimiterShort},
@@ -136,6 +144,11 @@ func run() *cli.Command {
 }
 
 func doCliRun(cliCtx *cli.Context) error {
+	if cliCtx.Args().Len() > 1 {
+		_ = cli.ShowAppHelp(cliCtx)
+		return fmt.Errorf("found more arguments than expected: '%v'", cliCtx.Args().Slice()[1:])
+	}
+
 	filename := cliCtx.Args().First()
 	lunchBreakInMin := cliCtx.Int(flagLunchBreakInMinutesLong)
 	csvColumnDelimiter := cliCtx.String(flagCSVColumnDelimiterLong)
