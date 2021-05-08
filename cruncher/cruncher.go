@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/ppxl/sagemine/core"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
@@ -36,15 +37,18 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 	output := core.NewCrunchedOutput()
 
 	var joinedPipeline *core.SageWorkPerDay
+	var joinedPipelineName string
 	var err error
 
 	for redminePipeline, workPerDay := range pdata.NamedDayRedmineValues {
-		fmt.Printf("%s, \t", redminePipeline)
-
 		var pipeline *core.SageWorkPerDay
 		if true {
 			if joinedPipeline == nil {
-				joinedPipeline, err = output.AddPipeline(string(redminePipeline) + "-joined")
+				pipelineName := string(redminePipeline) + "-joined"
+				joinedPipeline, err = output.AddPipeline(pipelineName)
+				joinedPipelineName = pipelineName
+
+				logrus.Printf("Add new pipeline %s", redminePipeline)
 
 				if err != nil {
 					return nil, errors.Wrap(err, "error while crunching time data")
@@ -59,7 +63,9 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 			}
 		}
 
+		fmt.Printf("%s, \t", joinedPipelineName)
 		currentDay := time.Unix(0, 0)
+
 		for day, worktime := range (map[string]float64)(*workPerDay) {
 			if currentDay == time.Unix(0, 0) {
 				firstDayString := day + "T" + dayStartTime + "Z"
@@ -69,14 +75,21 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 				}
 			}
 
-			fmt.Printf("%s, %0.2f\t", redminePipeline, worktime)
+			fmt.Printf("%s, %0.2f", day, worktime)
+			if worktime == 0.0 {
+				fmt.Print("*\t")
+				continue
+			}
+
+			fmt.Print("\t")
 
 			start := currentDay.Format("15:04")
-			currentDay.Add(time.Duration(worktime))
+			currentDay.Add(time.Duration(worktime) * time.Hour)
 			end := currentDay.Format("15:04")
 
 			pipeline.PutTimeSlot(day, start, end)
 		}
+
 		fmt.Println()
 	}
 	return output, nil

@@ -89,10 +89,14 @@ func (swpd *SageWorkPerDay) Days() int {
 }
 
 func (swpd *SageWorkPerDay) PutTimeSlot(date string, slotStart, slotEnd string) {
-	timeSlot := &TimeSlot{
-		Start: slotStart,
-		End:   slotEnd,
+	timeSlot := swpd.timeSlot(date)
+	if timeSlot == nil {
+		timeSlot = &TimeSlot{}
 	}
+
+	timeSlot.Start = slotStart
+	timeSlot.End = slotEnd
+
 	(*swpd)[date] = timeSlot
 }
 
@@ -103,6 +107,10 @@ func (swpd *SageWorkPerDay) String() string {
 	}
 
 	return result
+}
+
+func (swpd *SageWorkPerDay) timeSlot(day string) *TimeSlot {
+	return (*swpd)[day]
 }
 
 // TimeSlot represents a dateless wall clock interval of work, f. i. from 13:00 till 14:15
