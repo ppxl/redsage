@@ -41,20 +41,22 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		require.Equal(t, 2, actual.Entries())
 
 		expected := core.NewPipelineData()
-		expectedEntry := core.RedmineWorkPerDay{}
-		expectedEntry["2021-05-03"] = 7.50
-		expectedEntry["2021-05-04"] = 6
-		expectedEntry["2021-05-05"] = 0
-		expectedEntry["2021-05-06"] = 4.50
-		expectedEntry["Gesamtzeit"] = 18
-		expected.NamedDayRedmineValues[pipelineA] = &expectedEntry
-		expectedSums := core.RedmineWorkPerDay{}
-		expectedSums["2021-05-03"] = 7.50
-		expectedSums["2021-05-04"] = 6
-		expectedSums["2021-05-05"] = 0
-		expectedSums["2021-05-06"] = 4.50
-		expectedSums["Gesamtzeit"] = 18
-		expected.NamedDayRedmineValues["Gesamtzeit"] = &expectedSums
+
+		expectedEntry, err := expected.AddPipeline(pipelineA)
+		require.NoError(t, err)
+		expectedEntry.PutWorkTime("2021-05-03", 7.50)
+		expectedEntry.PutWorkTime("2021-05-04", 6)
+		expectedEntry.PutWorkTime("2021-05-05", 0)
+		expectedEntry.PutWorkTime("2021-05-06", 4.50)
+		expectedEntry.PutWorkTime("Gesamtzeit", 18)
+
+		expectedSums, err := expected.AddPipeline("Gesamtzeit")
+		require.NoError(t, err)
+		expectedSums.PutWorkTime("2021-05-03", 7.50)
+		expectedSums.PutWorkTime("2021-05-04", 6)
+		expectedSums.PutWorkTime("2021-05-05", 0)
+		expectedSums.PutWorkTime("2021-05-06", 4.50)
+		expectedSums.PutWorkTime("Gesamtzeit", 18)
 		assert.Equal(t, expected, actual)
 	})
 
@@ -87,18 +89,17 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		require.Equal(t, actual.NamedDayRedmineValues[pipelineA].Days(), 4)
 
 		expected := core.NewPipelineData()
-		expectedEntry := core.RedmineWorkPerDay{}
-		expectedEntry["2021-05-03"] = 7.50
-		expectedEntry["2021-05-04"] = 6
-		expectedEntry["2021-05-05"] = 0
-		expectedEntry["2021-05-06"] = 4.50
-		expected.NamedDayRedmineValues["Pipeline A"] = &expectedEntry
-		expectedSums := core.RedmineWorkPerDay{}
-		expectedSums["2021-05-03"] = 7.50
-		expectedSums["2021-05-04"] = 6
-		expectedSums["2021-05-05"] = 0
-		expectedSums["2021-05-06"] = 4.50
-		expected.NamedDayRedmineValues["Gesamtzeit"] = &expectedSums
+		expectedEntry, _ := expected.AddPipeline(pipelineA)
+		expectedEntry.PutWorkTime("2021-05-03", 7.50)
+		expectedEntry.PutWorkTime("2021-05-04", 6)
+		expectedEntry.PutWorkTime("2021-05-05", 0)
+		expectedEntry.PutWorkTime("2021-05-06", 4.50)
+
+		expectedSums, _ := expected.AddPipeline("Gesamtzeit")
+		expectedSums.PutWorkTime("2021-05-03", 7.50)
+		expectedSums.PutWorkTime("2021-05-04", 6)
+		expectedSums.PutWorkTime("2021-05-05", 0)
+		expectedSums.PutWorkTime("2021-05-06", 4.50)
 		assert.Equal(t, expected, actual)
 	})
 
@@ -131,13 +132,13 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		require.Equal(t, actual.NamedDayRedmineValues[pipelineA].Days(), 5)
 
 		expected := core.NewPipelineData()
-		expectedEntry := core.RedmineWorkPerDay{}
-		expectedEntry["2021-05-03"] = 7.50
-		expectedEntry["2021-05-04"] = 6
-		expectedEntry["2021-05-05"] = 0
-		expectedEntry["2021-05-06"] = 4.50
-		expectedEntry["Gesamtzeit"] = 18
-		expected.NamedDayRedmineValues["Pipeline A"] = &expectedEntry
+		expectedEntry, _ := expected.AddPipeline(pipelineA)
+		expectedEntry.PutWorkTime("2021-05-03", 7.50)
+		expectedEntry.PutWorkTime("2021-05-04", 6)
+		expectedEntry.PutWorkTime("2021-05-05", 0)
+		expectedEntry.PutWorkTime("2021-05-06", 4.50)
+		expectedEntry.PutWorkTime("Gesamtzeit", 18)
+
 		assert.Equal(t, expected, actual)
 	})
 }

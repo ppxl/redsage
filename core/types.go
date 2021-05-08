@@ -13,6 +13,12 @@ func NewPipelineData() *PipelineData {
 }
 
 // PipelineData contain parsed Redmine Pipeline data. Redmine divides hour in a decimal way, i. e. 0.5 means 30 minutes.
+//
+// Example:
+//  data := NewPipelineData()
+//  pipeline, err := data.AddPipeline("My Pipeline")
+//  pipeline.PutWorkTime("2021-05-05", 7.5)
+//  pipeline.PutWorkTime("2021-05-06", 4)
 type PipelineData struct {
 	// NamedDayValues maps the pipeline name to actual values per day, f. i. Pipeline 1 -> 2021-05-05 -> 5.75
 	NamedDayRedmineValues map[PipelineName]*RedmineWorkPerDay
@@ -36,8 +42,12 @@ func (pd *PipelineData) AddPipeline(pipelineName string) (*RedmineWorkPerDay, er
 // RedmineWorkPerDay maps a date string to the accumulated amount of time spent, f. i. 2021-05-05 -> 5.75
 type RedmineWorkPerDay map[string]float64
 
-func (rwpd RedmineWorkPerDay) Days() int {
-	return len(rwpd)
+func (rwpd *RedmineWorkPerDay) Days() int {
+	return len(*rwpd)
+}
+
+func (rwpd *RedmineWorkPerDay) PutWorkTime(date string, workTime float64) {
+	(*rwpd)[date] = workTime
 }
 
 // CrunchedOutput contains mappings from pipeline name to Sage compatible work time
