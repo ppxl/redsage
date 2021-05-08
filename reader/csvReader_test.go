@@ -28,9 +28,9 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		assert.NoError(t, err)
 
 		sut := newCSVReader(CSVOptions{
-			Filename:              path,
-			CSVDelimiter:          ";",
-			InputDecimalDelimiter: ",",
+			Filename:         path,
+			CSVDelimiter:     ";",
+			DecimalDelimiter: ",",
 		})
 
 		//when
@@ -72,10 +72,10 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		assert.NoError(t, err)
 
 		sut := newCSVReader(CSVOptions{
-			Filename:              path,
-			CSVDelimiter:          ";",
-			InputDecimalDelimiter: ",",
-			SkipColumnNames:       []string{"Gesamtzeit"},
+			Filename:         path,
+			CSVDelimiter:     ";",
+			DecimalDelimiter: ",",
+			SkipColumnNames:  []string{"Gesamtzeit"},
 		})
 
 		//when
@@ -116,10 +116,10 @@ Gesamtzeit;7,50;6,00;"";4,50;18,00
 		assert.NoError(t, err)
 
 		sut := newCSVReader(CSVOptions{
-			Filename:              path,
-			CSVDelimiter:          ";",
-			InputDecimalDelimiter: ",",
-			SkipSummaryLine:       true,
+			Filename:         path,
+			CSVDelimiter:     ";",
+			DecimalDelimiter: ",",
+			SkipSummaryLine:  true,
 		})
 
 		//when

@@ -13,18 +13,19 @@ import (
 )
 
 const (
-	flagLunchBreakInMinutesLong   = "break"
-	flagLunchBreakInMinutesShort  = "b"
-	flagSinglePipelinesLong       = "single"
-	flagSinglePipelinesShort      = "s"
-	flagCSVColumnDelimiterLong    = "csv-column-delimiter"
-	flagCSVColumnDelimiterShort   = "c"
-	flagDecimalDelimiterLong      = "decimal-delimiter"
-	flagDecimalDelimiterShort     = "d"
-	flagIgnoreSummaryLineLong     = "ignore-summary-line"
-	flagIgnoreSummaryLineShort    = "i"
-	flagIgnoreColumnWithNameLong  = "ignore-column-name"
-	flagIgnoreColumnWithNameShort = "n"
+	flagGlobalLogLevel           = "log-level"
+	flagLunchBreakInMinutesLong  = "break"
+	flagLunchBreakInMinutesShort = "b"
+	flagSinglePipelinesLong      = "single"
+	flagSinglePipelinesShort     = "s"
+	flagCSVColumnDelimiterLong   = "csv-column-delimiter"
+	flagCSVColumnDelimiterShort  = "c"
+	flagDecimalDelimiterLong     = "decimal-delimiter"
+	flagDecimalDelimiterShort    = "d"
+	flagIgnoreSummaryLineLong    = "ignore-summary-line"
+	flagIgnoreSummaryLineShort   = "i"
+	flagSkipColumnsLong          = "skip-column"
+	flagSkipColumnsShort         = "s"
 )
 
 var (
@@ -46,7 +47,7 @@ type runArgs struct {
 func createGlobalFlags() []cli.Flag {
 	return []cli.Flag{
 		&cli.StringFlag{
-			Name:  "log-level",
+			Name:  flagGlobalLogLevel,
 			Usage: "define log level",
 			Value: "warning",
 		},
@@ -117,8 +118,8 @@ func run() *cli.Command {
 					"All other pipelines will be merged into a single pseudo-pipeline.",
 			},
 			&cli.StringSliceFlag{
-				Name:    flagIgnoreColumnWithNameLong,
-				Aliases: []string{flagIgnoreColumnWithNameShort},
+				Name:    flagSkipColumnsLong,
+				Aliases: []string{flagSkipColumnsShort},
 				Usage:   "columns with these headers will be ignored (optional)",
 			},
 			&cli.StringFlag{
@@ -155,6 +156,7 @@ func doCliRun(cliCtx *cli.Context) error {
 	decimalDelimiter := cliCtx.String(flagDecimalDelimiterLong)
 	ignoreSummaryLine := cliCtx.Bool(flagIgnoreSummaryLineLong)
 	singlePipelines := cliCtx.StringSlice(flagSinglePipelinesLong)
+	skipColumns := cliCtx.StringSlice(flagSkipColumnsLong)
 
 	args := runArgs{
 		lunchBreakInMin:  lunchBreakInMin,
@@ -162,7 +164,7 @@ func doCliRun(cliCtx *cli.Context) error {
 		filename:         filename,
 		csvDelimiter:     csvColumnDelimiter,
 		decimalDelimiter: decimalDelimiter,
-		skipColumnNames:  nil,
+		skipColumnNames:  skipColumns,
 		skipSummaryLine:  ignoreSummaryLine,
 	}
 
@@ -174,11 +176,11 @@ func doRun(args runArgs) error {
 	options := reader.Options{
 		Type: reader.CSV,
 		CSVOptions: reader.CSVOptions{
-			Filename:              args.filename,
-			CSVDelimiter:          ";",
-			InputDecimalDelimiter: ",",
-			SkipColumnNames:       []string{"Gesamtzeit"},
-			SkipSummaryLine:       false,
+			Filename:         args.filename,
+			CSVDelimiter:     args.csvDelimiter,
+			DecimalDelimiter: args.decimalDelimiter,
+			SkipColumnNames:  args.skipColumnNames,
+			SkipSummaryLine:  args.skipSummaryLine,
 		},
 		APIOptions: reader.APIOptions{},
 	}

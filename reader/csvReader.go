@@ -19,11 +19,11 @@ const (
 var log = logging.Logger()
 
 type CSVOptions struct {
-	Filename              string
-	CSVDelimiter          string
-	InputDecimalDelimiter string
-	SkipColumnNames       []string
-	SkipSummaryLine       bool
+	Filename         string
+	CSVDelimiter     string
+	DecimalDelimiter string
+	SkipColumnNames  []string
+	SkipSummaryLine  bool
 }
 
 type APIOptions struct {
@@ -108,7 +108,7 @@ func (cr *csvReader) Read() (*core.PipelineData, error) {
 				continue
 			}
 
-			workTimeRaw := formatDecimal(cell, cr.options.InputDecimalDelimiter)
+			workTimeRaw := formatDecimal(cell, cr.options.DecimalDelimiter)
 
 			workTime, err := strconv.ParseFloat(workTimeRaw, 64)
 			if err != nil {
