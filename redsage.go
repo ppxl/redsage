@@ -7,6 +7,7 @@ import (
 	"github.com/ppxl/sagemine/cruncher"
 	"github.com/ppxl/sagemine/logging"
 	"github.com/ppxl/sagemine/reader"
+	"github.com/ppxl/sagemine/transformer"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"os"
@@ -176,12 +177,17 @@ func doCliRun(cliCtx *cli.Context) error {
 }
 
 func doRun(args runArgs) error {
-	data, err := readCSV(args)
+	data, err := readRedmineData(args)
 	if err != nil {
 		return err
 	}
 
-	crunched, err := crunch(data, args)
+	joinedData, err := joinRedmineData(data, args)
+	if err != nil {
+		return err
+	}
+
+	crunched, err := crunch(joinedData, args)
 	if err != nil {
 		return err
 	}
@@ -194,7 +200,21 @@ func doRun(args runArgs) error {
 	return nil
 }
 
-func readCSV(args runArgs) (*core.PipelineData, error) {
+func joinRedmineData(data *core.PipelineData, args runArgs) (*core.PipelineData, error) {
+	trans := transformer.New()
+	joinConfig := transformer.Config{
+		SinglePipelineNames: args.singlePipelines,
+	}
+
+	joinedData, err := trans.Transform(data, joinConfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "error while transforming pipelines")
+	}
+
+	return joinedData, nil
+}
+
+func readRedmineData(args runArgs) (*core.PipelineData, error) {
 	options := reader.Options{
 		Type: reader.CSV,
 		CSVOptions: reader.CSVOptions{
@@ -213,13 +233,12 @@ func readCSV(args runArgs) (*core.PipelineData, error) {
 		return nil, errors.Wrapf(err, "error while reading from %s", options.CSVOptions.Filename)
 	}
 
-	return data, err
+	return data, nil
 }
 
 func crunch(data *core.PipelineData, args runArgs) (*core.CrunchedOutput, error) {
 	crunchConfig := cruncher.Config{
-		LunchBreakInMin:     args.lunchBreakInMin,
-		SinglePipelineNames: []core.PipelineName{(core.PipelineName)("Pipeline A")},
+		LunchBreakInMin: args.lunchBreakInMin,
 	}
 	crunch := cruncher.New()
 

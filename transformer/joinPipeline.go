@@ -5,8 +5,13 @@ import (
 	"github.com/ppxl/sagemine/core"
 )
 
+// Config contains configuration values that modify the joining behaviour.
+type Config struct {
+	SinglePipelineNames []string
+}
+
 type Transformer interface {
-	Transform(pdata *core.PipelineData) (*core.PipelineData, error)
+	Transform(pdata *core.PipelineData, config Config) (*core.PipelineData, error)
 }
 
 func New() *joinTransformer {
@@ -16,7 +21,7 @@ func New() *joinTransformer {
 type joinTransformer struct {
 }
 
-func (j *joinTransformer) Transform(pdata *core.PipelineData) (*core.PipelineData, error) {
+func (j *joinTransformer) Transform(pdata *core.PipelineData, config Config) (*core.PipelineData, error) {
 	result := core.NewPipelineData()
 	var err error
 	var joinedPipeline *core.RedmineWorkPerDay

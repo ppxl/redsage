@@ -29,7 +29,7 @@ func Test_joinTransformer_Transform(t *testing.T) {
 		sut := &joinTransformer{}
 
 		// when
-		actual, err := sut.Transform(input)
+		actual, err := sut.Transform(input, Config{})
 
 		// then
 		require.NoError(t, err)
