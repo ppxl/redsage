@@ -52,11 +52,39 @@ func (rwpd *RedmineWorkPerDay) PutWorkTime(date string, workTime float64) {
 
 // CrunchedOutput contains mappings from pipeline name to Sage compatible work time
 type CrunchedOutput struct {
-	NamedDaySageValues map[PipelineName]SageWorkPerDay
+	NamedDaySageValues map[PipelineName]*SageWorkPerDay
+}
+
+func NewCrunchedOutput() *CrunchedOutput {
+	values := make(map[PipelineName]*SageWorkPerDay, 0)
+	return &CrunchedOutput{NamedDaySageValues: values}
+}
+
+func (co *CrunchedOutput) AddPipeline(pipelineName string) (*SageWorkPerDay, error) {
+	if pipelineName == "" {
+		return nil, errors.New("pipeline name must not be empty")
+	}
+
+	pipeline := &SageWorkPerDay{}
+	co.NamedDaySageValues[(PipelineName)(pipelineName)] = pipeline
+
+	return pipeline, nil
 }
 
 // SageWorkPerDay maps a date string to a simplified Sage time slow, f. i. 2021-05-05 -> 13:00 - 14:00
 type SageWorkPerDay map[string]TimeSlot
+
+func (swpd *SageWorkPerDay) Days() int {
+	return len(*swpd)
+}
+
+func (swpd *SageWorkPerDay) PutTimeSlot(date string, slotStart, slotEnd string) {
+	timeSlot := TimeSlot{
+		Start: slotStart,
+		End:   slotEnd,
+	}
+	(*swpd)[date] = timeSlot
+}
 
 // TimeSlot represents a dateless wall clock interval of work, f. i. from 13:00 till 14:15
 type TimeSlot struct {
