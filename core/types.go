@@ -55,6 +55,16 @@ type CrunchedOutput struct {
 	NamedDaySageValues map[PipelineName]*SageWorkPerDay
 }
 
+func (co *CrunchedOutput) String() string {
+	result := ""
+
+	for pipeline, dayValue := range co.NamedDaySageValues {
+		result += fmt.Sprintf("p: %s, %s", pipeline, dayValue)
+	}
+
+	return result
+}
+
 func NewCrunchedOutput() *CrunchedOutput {
 	values := make(map[PipelineName]*SageWorkPerDay, 0)
 	return &CrunchedOutput{NamedDaySageValues: values}
@@ -72,18 +82,27 @@ func (co *CrunchedOutput) AddPipeline(pipelineName string) (*SageWorkPerDay, err
 }
 
 // SageWorkPerDay maps a date string to a simplified Sage time slow, f. i. 2021-05-05 -> 13:00 - 14:00
-type SageWorkPerDay map[string]TimeSlot
+type SageWorkPerDay map[string]*TimeSlot
 
 func (swpd *SageWorkPerDay) Days() int {
 	return len(*swpd)
 }
 
 func (swpd *SageWorkPerDay) PutTimeSlot(date string, slotStart, slotEnd string) {
-	timeSlot := TimeSlot{
+	timeSlot := &TimeSlot{
 		Start: slotStart,
 		End:   slotEnd,
 	}
 	(*swpd)[date] = timeSlot
+}
+
+func (swpd *SageWorkPerDay) String() string {
+	result := ""
+	for pipeline, timeSlot := range *swpd {
+		result += fmt.Sprintf("d: %s, ts: %s", pipeline, timeSlot)
+	}
+
+	return result
 }
 
 // TimeSlot represents a dateless wall clock interval of work, f. i. from 13:00 till 14:15
