@@ -75,9 +75,9 @@ func (co *CrunchedOutput) String() string {
 	result := ""
 
 	sortedKeys := co.SortedKeys()
-	for pipeline, dayValue := range sortedKeys {
+	for _, dayValue := range sortedKeys {
 		logrus.Info("String: dayValue: " + dayValue)
-		result += fmt.Sprintf("p: %s, %s", pipeline, co.NamedDaySageValues[(PipelineName)(dayValue)])
+		result += fmt.Sprintf("p: %s", co.NamedDaySageValues[(PipelineName)(dayValue)])
 	}
 
 	return result
@@ -131,8 +131,8 @@ func (swpd *SageWorkPerDay) PutTimeSlot(date string, slotStart, slotEnd string) 
 func (swpd *SageWorkPerDay) String() string {
 	result := ""
 	sortedKeys := swpd.SortedKeys()
-	for pipeline, timeSlot := range sortedKeys {
-		result += fmt.Sprintf("d: %s, ts: %s\t", pipeline, timeSlot)
+	for _, timeSlot := range sortedKeys {
+		result += fmt.Sprintf("d: ts: %s\t", timeSlot)
 	}
 
 	return result

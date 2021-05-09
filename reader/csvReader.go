@@ -84,8 +84,8 @@ func (cr *csvReader) Read() (*core.PipelineData, error) {
 	columnsToSkip := []int{}
 
 	for currentLine, line := range data {
-		var pipeline core.PipelineName
-		entry := core.RedmineWorkPerDay{}
+		var pipeline *core.RedmineWorkPerDay
+
 		if currentLine == 0 {
 			columnHeaders = line
 			columnsToSkip = buildSkipColumns(columnHeaders, cr.options.SkipColumnNames)
@@ -100,7 +100,10 @@ func (cr *csvReader) Read() (*core.PipelineData, error) {
 			fmt.Printf("%s\t", cell)
 
 			if currentColumn == 0 {
-				pipeline = (core.PipelineName)(cell)
+				pipeline, err = result.AddPipeline(cell)
+				if err != nil {
+					return nil, errors.Wrapf(err, "failed to read line %d from CSV: error while adding pipeline %s", currentLine, cell)
+				}
 				continue
 			}
 
@@ -117,10 +120,9 @@ func (cr *csvReader) Read() (*core.PipelineData, error) {
 
 			currentDay := columnHeaders[currentColumn]
 
-			entry.WorkPerDay[currentDay] = workTime
+			pipeline.PutWorkTime(currentDay, workTime)
 		}
 
-		result.NamedDayRedmineValues[pipeline] = &entry
 		fmt.Println()
 	}
 
