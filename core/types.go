@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"sort"
+	"time"
 )
 
 const timeSlotFormat = "%s - %s"
@@ -170,3 +171,31 @@ func (t *TimeSlot) String() string {
 
 // PipelineName contains the name of a pipeline.
 type PipelineName string
+
+// DayTimeCounter holds the state of timeslots per day regardless of project.
+type DayTimeCounter struct {
+	counters      map[string]time.Time
+	workStartTime string
+}
+
+func NewDayTimeCounter(workStartTime string) *DayTimeCounter {
+	counters := make(map[string]time.Time, 0)
+	return &DayTimeCounter{counters: counters, workStartTime: workStartTime}
+}
+
+func (dtc *DayTimeCounter) GetEndTimeOrDefault(date, defaultStartTime string) time.Time {
+	result, ok := dtc.counters[date]
+	if !ok {
+		goodMorning, err := ParseDateWithTime(date, defaultStartTime)
+		if err != nil {
+			panic("could not get end time for day: " + err.Error())
+		}
+		dtc.counters[date] = goodMorning
+		return goodMorning
+	}
+
+	return result
+}
+func (dtc *DayTimeCounter) EndTime(date string, endTime time.Time) {
+	dtc.counters[date] = endTime
+}
