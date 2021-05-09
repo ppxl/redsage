@@ -192,12 +192,22 @@ func doRun(args runArgs) error {
 		return err
 	}
 
-	//fake
-	if crunched.NamedDaySageValues != nil {
-
-	}
+	printResults(crunched)
 
 	return nil
+}
+
+func printResults(crunched *core.CrunchedOutput) {
+	for i, pipeline := range crunched.NamedDaySageValues {
+		fmt.Printf("%v\n", i)
+		for _, date := range pipeline.SortedKeys() {
+			fmt.Printf("%s\t", date)
+			for _, timeslot := range pipeline.TimeSlots(date) {
+				fmt.Printf("%s\t", timeslot.String())
+			}
+			fmt.Println()
+		}
+	}
 }
 
 func joinRedmineData(data *core.PipelineData, args runArgs) (*core.PipelineData, error) {
