@@ -36,6 +36,7 @@ const shouldStartNextSlotAtFullOClock = false
 // Crunch executes the merging and splitting values from a CSV file and prints the output in Sage-relatable manner.
 func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.CrunchedOutput, error) {
 	output := core.NewCrunchedOutput()
+	dayTimeCounter := core.NewDayTimeCounter(dayStartTime)
 
 	for redminePipeline, workPerDay := range pdata.NamedDayRedmineValues {
 		logrus.Debugf("Add new pipeline %s", redminePipeline)
@@ -47,11 +48,7 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 		}
 
 		for day, worktime := range workPerDay.WorkPerDay {
-			firstDayString := day + "T" + dayStartTime + "Z"
-			currentDayAndTime, err := time.Parse(time.RFC3339, firstDayString)
-			if err != nil {
-				return nil, errors.Wrapf(err, "error while creating date start time %s for pipeline %v", day, pipeline)
-			}
+			currentDayAndTime := dayTimeCounter.GetNextTimeSlotOrDefault(day)
 
 			if containsNoWorkTime(worktime) {
 				pipeline.PutEmptyTimeSlot(day)
@@ -82,6 +79,7 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 				currentDayAndTime = endTime
 			}
 
+			dayTimeCounter.EndTime(day, currentDayAndTime)
 		}
 	}
 
