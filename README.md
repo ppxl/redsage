@@ -20,6 +20,32 @@ The output times are totally off in favor of easier data input in Sage, that is:
 ./redsage -s pipeline1 -s pipeline2 redmine.csv  
 ```
 
+German CSV quickstart:
+
+Calling RedSage like this reads a Redmine time report .CSV in german locale and joins all pipelines into a single one. Currently, lunch break default to 12:00 o'clock with a duration of 60 minutes.
+
+```
+redsage run -s "Gesamtzeit" -c ";" -d "," -i /path/to/timelog-1.csv
+
+Pipeline A    7,50    6,00    4,50    4,50    22,50   
+Pipeline B    1,50                            1,50    
+ACME                          0,75    0,75    
+Pipeline A-joined
+2021-05-03      08:00 - 12:00   13:00 - 18:00   
+2021-05-04      08:00 - 12:00   13:00 - 15:00   
+2021-05-05      08:00 - 12:00   13:00 - 13:30   
+2021-05-06      08:00 - 12:00   13:00 - 14:15   
+```
+
+Used .CSV:
+```csv
+Anforderungspipeline;2021-05-03;2021-05-04;2021-05-05;2021-05-06;Gesamtzeit
+Pipeline A;7,50;6,00;4,50;4,50;22,50
+Pipeline B;1,50;"";"";"";1,50
+ACME;"";"";"";0,75;0,75
+Gesamtzeit;9,00;6,00;4,50;5,25;24,75
+```
+
 ## License
 
 MIT
