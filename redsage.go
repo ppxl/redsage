@@ -59,7 +59,7 @@ func configureLogging(cliCtx *cli.Context) error {
 	logLevel := cliCtx.String("log-level")
 	logLevelParsed, err := logrus.ParseLevel(logLevel)
 	if err != nil {
-		log.Error("could not parse log level %s to logrus level. Defaulting to WARN", logLevel)
+		log.Errorf("could not parse log level %s to logrus level. Defaulting to WARN", logLevel)
 		logLevelParsed = logrus.WarnLevel
 	}
 

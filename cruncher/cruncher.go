@@ -31,6 +31,8 @@ func New() *cruncher {
 	return &cruncher{}
 }
 
+const shouldStartNextSlotAtFullOClock = false
+
 // Crunch executes the merging and splitting values from a CSV file and prints the output in Sage-relatable manner.
 func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.CrunchedOutput, error) {
 	output := core.NewCrunchedOutput()
@@ -57,12 +59,6 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 			}
 
 			start := currentDayAndTime.Format(wallClockLayout)
-			if !startsWorkAtOClock(currentDayAndTime) {
-				roundedNextHour := roundWorkTimeToNextHour(currentDayAndTime)
-				logrus.Debugf("Rounding up %s to next hour: %s", start, roundedNextHour)
-				currentDayAndTime = roundedNextHour
-				start = currentDayAndTime.Format(wallClockLayout)
-			}
 
 			// decimals don't work well with duration: Do instead manual minute calculation
 			calcedEndTime := time.Duration(worktime*60) * time.Minute
