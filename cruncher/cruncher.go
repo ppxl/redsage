@@ -70,7 +70,7 @@ func (c *cruncher) Crunch(pdata *core.PipelineData, config Config) (*core.Crunch
 
 			diff, endTimeIntersectsWithLunchtime := endTimeFallsIntoLunch(endTime, day)
 			if endTimeIntersectsWithLunchtime {
-				logrus.Printf("Time slot %s - %s falls into lunch by %s. Breaking up into two parts...", currentDayAndTime, endTime, diff)
+				logrus.Debug("Time slot %s - %s falls into lunch by %s. Breaking up into two parts...", currentDayAndTime, endTime, diff)
 				endBeforeLunch := endTime.Add(-diff)
 				pipeline.PutTimeSlot(day, start, endBeforeLunch.Format(wallClockLayout))
 				// update current time to enable correct timing of the second slot
